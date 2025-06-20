@@ -35,6 +35,7 @@ const items = [
     title: "ProtectedPage",
     url: "/protected",
     icon: Protected,
+    perm: "admin",
   },
 ];
 
@@ -60,20 +61,27 @@ const SideBar = () => {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <Button
-                      variant="ghost"
-                      className="flex justify-start"
-                      onClick={() => router.push(item.url)}
-                    >
-                      <item.icon />
-                      {item.title}
-                    </Button>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {items.map((item) => {
+                const shouldRender =
+                  !item.perm || (currentUser && currentUser.role === item.perm);
+
+                if (!shouldRender) return null;
+
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <Button
+                        variant="ghost"
+                        className="flex justify-start"
+                        onClick={() => router.push(item.url)}
+                      >
+                        <item.icon />
+                        {item.title}
+                      </Button>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -81,7 +89,15 @@ const SideBar = () => {
       <SidebarFooter>
         <div className="w-full flex justify-between items-center">
           <span className="text-lg font-bold">{currentUser?.nickname}</span>
-          <Button>登出</Button>
+          <Button
+            onClick={() => {
+              document.cookie =
+                "id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+              router.push("/login");
+            }}
+          >
+            登出
+          </Button>
         </div>
       </SidebarFooter>
     </Sidebar>
